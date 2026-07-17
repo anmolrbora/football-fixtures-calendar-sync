@@ -1,20 +1,25 @@
-# Liverpool FC fixtures → iCloud calendar
+# football-fixtures-calendar-sync
 
-Auto-updating calendar feed of Liverpool fixtures across all competitions
-(Premier League, Champions League, FA Cup, Carabao Cup, …). A GitHub Action
-regenerates [`liverpool.ics`](liverpool.ics) every 6 hours from ESPN's public
-schedule API, so rescheduled kick-offs and newly drawn cup ties flow into your
-calendar automatically.
+Auto-updating calendar feeds of football fixtures, one `.ics` file per team,
+built from ESPN's public schedule API. A GitHub Action regenerates the feeds
+every 6 hours, so rescheduled kick-offs and newly drawn cup ties flow into
+your calendar automatically.
 
 Each event's UID is the stable ESPN match id, so a rescheduled fixture updates
 the existing calendar entry in place — no duplicates.
 
+Current feeds:
+
+| Team | Feed |
+|---|---|
+| Liverpool FC | [`liverpool.ics`](liverpool.ics) |
+
 ## Subscribe (do this once)
 
-The feed URL is:
+The feed URL for a team is:
 
 ```
-https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/liverpool-fixtures/main/liverpool.ics
+https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/football-fixtures-calendar-sync/main/<team>.ics
 ```
 
 **iPhone / iPad:** Settings → Apps → Calendar → Calendar Accounts → Add Account →
@@ -28,16 +33,20 @@ to "Every hour".
 ## How fixture changes are handled
 
 - **Rescheduled kick-off** — same UID, new `DTSTART`; the event moves.
-- **New cup ties** — competitions are queried every run; fixtures appear as
-  soon as draws are made.
+- **New cup ties** — every competition a team can play in is queried each
+  run; fixtures appear as soon as draws are made.
 - **TBC kick-off times** — flagged "(time TBC)" in the event title until
   the broadcast schedule confirms them.
+
+## Adding a team
+
+Find the team's ESPN id in the URL of its espn.com club page (e.g.
+`espn.com/soccer/club/_/id/364/liverpool` → id `364`), then add an entry to
+`TEAMS` in `generate_ics.py` with the competitions it can play in. The next
+workflow run writes `<slug>.ics`.
 
 ## Run locally
 
 ```sh
-python3 generate_ics.py   # writes liverpool.ics (stdlib only, no deps)
+python3 generate_ics.py   # writes one .ics per team (stdlib only, no deps)
 ```
-
-To include pre-season friendlies or change competitions, edit the `LEAGUES`
-list at the top of `generate_ics.py`.

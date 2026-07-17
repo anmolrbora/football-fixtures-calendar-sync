@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""Generate liverpool.ics from ESPN's public schedule API.
+"""Generate per-team fixture .ics feeds from ESPN's public schedule API.
 
-Queries every competition Liverpool could play in; competitions whose
-draws haven't happened yet simply return no events until they do.
-Each event's UID is the stable ESPN match id, so when a fixture is
-rescheduled the calendar entry updates in place instead of duplicating.
+For each team in TEAMS, queries every competition it could play in and
+writes <slug>.ics. Competitions whose draws haven't happened yet simply
+return no events until they do. Each event's UID is the stable ESPN
+match id, so when a fixture is rescheduled the calendar entry updates
+in place instead of duplicating.
 
-Output is deterministic (no run timestamps), so the file only changes
+Output is deterministic (no run timestamps), so a file only changes
 when the fixtures themselves change.
+
+To add a team: find its ESPN id (in the URL of its espn.com club page,
+e.g. espn.com/soccer/club/_/id/364/liverpool), add it to TEAMS, and
+list the competitions it can play in under "leagues".
 """
 
 import datetime
@@ -16,10 +21,7 @@ import sys
 import urllib.request
 from urllib.error import URLError
 
-TEAM_ID = "364"  # Liverpool
-TEAM_NAME = "Liverpool"
-
-LEAGUES = [
+ENGLISH_COMPETITIONS = [
     ("eng.1", "Premier League"),
     ("uefa.champions", "Champions League"),
     ("uefa.europa", "Europa League"),
@@ -30,15 +32,26 @@ LEAGUES = [
     # ("club.friendly", "Friendly"),  # uncomment to include pre-season friendlies
 ]
 
+TEAMS = [
+    {
+        "id": "364",
+        "slug": "liverpool",
+        "name": "Liverpool FC",
+        "leagues": ENGLISH_COMPETITIONS,
+    },
+]
+
 API = (
     "https://site.api.espn.com/apis/site/v2/sports/soccer/"
     "{league}/teams/{team}/schedule?fixture=true"
 )
 
 
-def fetch_events(league_code):
-    url = API.format(league=league_code, team=TEAM_ID)
-    req = urllib.request.Request(url, headers={"User-Agent": "liverpool-fixtures-ics"})
+def fetch_events(league_code, team_id):
+    url = API.format(league=league_code, team=team_id)
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "football-fixtures-calendar-sync"}
+    )
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.load(resp).get("events", [])
 
@@ -116,7 +129,7 @@ def build_event(event, competition_name):
 
     lines = [
         "BEGIN:VEVENT",
-        f"UID:espn-{event['id']}@liverpool-fixtures",
+        f"UID:espn-{event['id']}@football-fixtures-calendar-sync",
         f"DTSTAMP:{start}",
         f"DTSTART:{start}",
         f"DTEND:{end}",
@@ -129,20 +142,23 @@ def build_event(event, competition_name):
     return start, lines
 
 
-def main():
+def generate_team(team):
     all_events = {}
     failures = []
-    for code, name in LEAGUES:
+    for code, name in team["leagues"]:
         try:
-            for ev in fetch_events(code):
+            for ev in fetch_events(code, team["id"]):
                 all_events.setdefault(ev["id"], (ev, name))
         except (URLError, TimeoutError, json.JSONDecodeError, KeyError) as exc:
             failures.append((code, exc))
-            print(f"warning: {code} failed: {exc}", file=sys.stderr)
+            print(f"warning: {team['slug']}/{code} failed: {exc}", file=sys.stderr)
 
     if failures and not all_events:
-        print("error: every league query failed; keeping existing file", file=sys.stderr)
-        sys.exit(1)
+        print(
+            f"error: {team['slug']}: every league query failed; keeping existing file",
+            file=sys.stderr,
+        )
+        return False
 
     built = []
     for ev, comp_name in all_events.values():
@@ -154,11 +170,11 @@ def main():
     out = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
-        "PRODID:-//liverpool-fixtures//ESPN//EN",
+        "PRODID:-//football-fixtures-calendar-sync//ESPN//EN",
         "CALSCALE:GREGORIAN",
         "METHOD:PUBLISH",
-        "X-WR-CALNAME:Liverpool FC",
-        "X-WR-CALDESC:Liverpool fixtures — auto-updated",
+        f"X-WR-CALNAME:{escape(team['name'])}",
+        f"X-WR-CALDESC:{escape(team['name'])} fixtures — auto-updated",
         "REFRESH-INTERVAL;VALUE=DURATION:PT6H",
         "X-PUBLISHED-TTL:PT6H",
     ]
@@ -166,10 +182,18 @@ def main():
         out.extend(lines)
     out.append("END:VCALENDAR")
 
+    filename = f"{team['slug']}.ics"
     content = "\r\n".join(fold(line) for line in out) + "\r\n"
-    with open("liverpool.ics", "w", encoding="utf-8", newline="") as f:
+    with open(filename, "w", encoding="utf-8", newline="") as f:
         f.write(content)
-    print(f"wrote liverpool.ics with {len(built)} fixtures")
+    print(f"wrote {filename} with {len(built)} fixtures")
+    return True
+
+
+def main():
+    ok = [generate_team(team) for team in TEAMS]
+    if not any(ok):
+        sys.exit(1)
 
 
 if __name__ == "__main__":
