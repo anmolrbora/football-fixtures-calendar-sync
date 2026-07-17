@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "23 */6 * * *" # every 6 hours
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - generate_ics.py
+      - .github/workflows/update.yml
 
 permissions:
   contents: write
