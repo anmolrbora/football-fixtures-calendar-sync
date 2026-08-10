@@ -48,10 +48,11 @@ API = (
 
 
 def fetch_events(league_code, team_id):
+    # No custom User-Agent: ESPN's WAF started 403-ing custom/browser-style
+    # UA strings around 2026-08-06 but still allows urllib's default
+    # ("Python-urllib/3.x"), same as common library UAs like requests/curl.
     url = API.format(league=league_code, team=team_id)
-    req = urllib.request.Request(
-        url, headers={"User-Agent": "football-fixtures-calendar-sync"}
-    )
+    req = urllib.request.Request(url)
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.load(resp).get("events", [])
 

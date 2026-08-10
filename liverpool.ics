@@ -230,7 +230,7 @@ DTSTART:20270210T200000Z
 DTEND:20270210T220000Z
 SUMMARY:⚽ Coventry vs Liverpool
 DESCRIPTION:Premier League
-LOCATION:The Coventry Building Society Arena\, Coventry
+LOCATION:Coventry Building Society Arena\, Coventry
 END:VEVENT
 BEGIN:VEVENT
 UID:espn-401878703@football-fixtures-calendar-sync
