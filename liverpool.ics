@@ -62,6 +62,15 @@ DESCRIPTION:Premier League
 LOCATION:Anfield\, Liverpool
 END:VEVENT
 BEGIN:VEVENT
+UID:espn-401921842@football-fixtures-calendar-sync
+DTSTAMP:20261027T180000Z
+DTSTART:20261027T180000Z
+DTEND:20261027T200000Z
+SUMMARY:⚽ Liverpool vs Chelsea (time TBC)
+DESCRIPTION:Carabao Cup — kickoff time not yet confirmed
+LOCATION:Anfield\, Liverpool
+END:VEVENT
+BEGIN:VEVENT
 UID:espn-401879246@football-fixtures-calendar-sync
 DTSTAMP:20261101T163000Z
 DTSTART:20261101T163000Z
