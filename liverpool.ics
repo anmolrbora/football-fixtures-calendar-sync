@@ -48,7 +48,7 @@ UID:espn-401878755@football-fixtures-calendar-sync
 DTSTAMP:20261122T163000Z
 DTSTART:20261122T163000Z
 DTEND:20261122T183000Z
-SUMMARY:⚽ Liverpool vs Man United
+SUMMARY:⚽ Liverpool vs Man Utd
 DESCRIPTION:Premier League
 LOCATION:Anfield\, Liverpool
 END:VEVENT
@@ -174,7 +174,7 @@ UID:espn-401878718@football-fixtures-calendar-sync
 DTSTAMP:20270123T150000Z
 DTSTART:20270123T150000Z
 DTEND:20270123T170000Z
-SUMMARY:⚽ Man United vs Liverpool
+SUMMARY:⚽ Man Utd vs Liverpool
 DESCRIPTION:Premier League
 LOCATION:Old Trafford\, Manchester
 END:VEVENT
