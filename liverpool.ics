@@ -98,6 +98,15 @@ DESCRIPTION:Premier League
 LOCATION:Anfield\, Liverpool
 END:VEVENT
 BEGIN:VEVENT
+UID:espn-401932187@football-fixtures-calendar-sync
+DTSTAMP:20261215T200000Z
+DTSTART:20261215T200000Z
+DTEND:20261215T220000Z
+SUMMARY:⚽ Liverpool vs Bournemouth (time TBC)
+DESCRIPTION:Carabao Cup — kickoff time not yet confirmed
+LOCATION:Anfield\, Liverpool
+END:VEVENT
+BEGIN:VEVENT
 UID:espn-401879200@football-fixtures-calendar-sync
 DTSTAMP:20261219T173000Z
 DTSTART:20261219T173000Z
